@@ -1,7 +1,8 @@
 There is one IB card with two ports on deepstorage, and four IB cards, each of which has one port on dgx. 
 
 [Set up drivers](#setupdriver) [Config network interface](#config_network) need to be done for both servers. 
-## SetUp drivers<a name="setupdriver"></a>
+For [NFS over IB](#nfs_over_ib), different steps are required for server (deepstorage) and client (dgx).
+## SetUp drivers<a name="setupdriver"></a>.  
 - Verify that cards are installed correctly and are recognized by the system
 ```lspci | grep -i mellanox
 ```
@@ -162,43 +163,46 @@ network:
             dhcp6: false
     version: 2
 ```
-## Config NFS over Infiniband
-- Check if the NFS server is installed
+## Config NFS over Infiniband <a name="nfs_over_ib"></a>
+- Check if the NFS server is installed (deepstorage)
 ```dpkg -l | grep nfs-kernel-server```
 
-- Install the required packages
+- Install the required packages (deepstorage)
 ```apt-get install nfs-kernel-server```
 
-- Install NFS client on dgx
+- Install NFS client (dgx)
 ```sudo apt-get install rpcbind nfs-common```
 
 - Edit the ``/etc/exports`` file to export folder to be mounted on the host server (deepstorage)
 
-- Load RDMA transport module on deepstorage
+- Load RDMA transport module (deepstorage)
 ``` modprobe svcrdma```
 
-- Make sure the server is listening on the RDMA transport port
+- Make sure the server is listening on the RDMA transport port (deepstorage)
 ``` echo rdma 20049 > /proc/fs/nfsd/portlist```
 
 - Load the RDMA transport module on the client (dgx)
 ```modprobe xprtrdma```
 
-- Mount the folder
-The folder on deepstorage should be exported as specified in the ``\etc\exports``
+- Mount the folder (dgx)
+The folder on deepstorage should be exported as specified in the ``/etc/exports``
 ```
 sudo mount -o rdma,port=20049 192.168.1.6:<folder on deepstorage> <folder on dgx>
 ```
 
-- Check the mount type
+- Check the mount type (dgx)
 ```
 mount|grep storage_slides
 192.168.1.6:/data/jiayun/slides_deid on /raid/jiayunli/data/storage_slides type nfs4 (rw,relatime,vers=4.2,rsize=1048576,wsize=1048576,namlen=255,hard,proto=rdma,port=20049,timeo=600,retrans=2,sec=sys,clientaddr=192.168.1.2,local_lock=none,addr=192.168.1.6)
 ```
 
-- Mount the folder automatically during boot  
+- Mount the folder automatically during boot (dgx)
 Need to edit the ``/etc/fstab`` to add mount folder options.
 
 ```
 # Mount deepstorage
 192.168.1.6:/data/jiayun/slides_deid /raid/jiayunli/data/storage_slides nfs rw,noatime,proto=rdma,port=20049,rsize=1048576,wsize=1048576,nolock,intr,fsc,nofail 0 0
 ```
+
+- Test the file transfer speed
+```dd of=<folder on dgx> if=<file from mounted folder on dgx> bs=1000M count=1024 oflag=direct```
