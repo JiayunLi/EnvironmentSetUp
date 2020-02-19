@@ -163,8 +163,42 @@ network:
     version: 2
 ```
 ## Config NFS over Infiniband
+- Check if the NFS server is installed
+```dpkg -l | grep nfs-kernel-server```
 
+- Install the required packages
+```apt-get install nfs-kernel-server```
 
+- Install NFS client on dgx
+```sudo apt-get install rpcbind nfs-common```
 
+- Edit the ``/etc/exports`` file to export folder to be mounted on the host server (deepstorage)
 
-mtu: 65520
+- Load RDMA transport module on deepstorage
+``` modprobe svcrdma```
+
+- Make sure the server is listening on the RDMA transport port
+``` echo rdma 20049 > /proc/fs/nfsd/portlist```
+
+- Load the RDMA transport module on the client (dgx)
+```modprobe xprtrdma```
+
+- Mount the folder
+The folder on deepstorage should be exported as specified in the ``\etc\exports``
+```
+sudo mount -o rdma,port=20049 192.168.1.6:<folder on deepstorage> <folder on dgx>
+```
+
+- Check the mount type
+```
+mount|grep storage_slides
+192.168.1.6:/data/jiayun/slides_deid on /raid/jiayunli/data/storage_slides type nfs4 (rw,relatime,vers=4.2,rsize=1048576,wsize=1048576,namlen=255,hard,proto=rdma,port=20049,timeo=600,retrans=2,sec=sys,clientaddr=192.168.1.2,local_lock=none,addr=192.168.1.6)
+```
+
+- Mount the folder automatically during boot  
+Need to edit the ``/etc/fstab`` to add mount folder options.
+
+```
+# Mount deepstorage
+192.168.1.6:/data/jiayun/slides_deid /raid/jiayunli/data/storage_slides nfs rw,noatime,proto=rdma,port=20049,rsize=1048576,wsize=1048576,nolock,intr,fsc,nofail 0 0
+```
