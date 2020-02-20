@@ -4,11 +4,13 @@ There is one IB card with two ports on deepstorage, and four IB cards, each of w
 For [NFS over IB](#nfs_over_ib), different steps are required for server (deepstorage) and client (dgx).
 ## SetUp drivers<a name="setupdriver"></a>.  
 - Verify that cards are installed correctly and are recognized by the system
-```lspci | grep -i mellanox
+```
+lspci | grep -i mellanox
 ```
 - Verify that the infiniband drivers are present (Mellanox Adapters' Linux VPI Drivers for Ethernet and InfiniBand 
 are also available Inbox in all the major distributions, RHEL, SLES, Ubuntu and more)
-```lsmod | grep -i ib_
+```
+lsmod | grep -i ib_
 ```
 - Verify that the Mellanox Software Tools (MST) / MLNX_OFED drivers were installed correctly
 Need to make sure the version is correct. Use the driver in /home/infiniband/ on dgx or the driver in /tmp/ on deepstorage.  
