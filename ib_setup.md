@@ -6,12 +6,10 @@ For [NFS over IB](#nfs_over_ib), different steps are required for server (deepst
 - Verify that cards are installed correctly and are recognized by the system
 ```lspci | grep -i mellanox
 ```
-
 - Verify that the infiniband drivers are present (Mellanox Adapters' Linux VPI Drivers for Ethernet and InfiniBand 
 are also available Inbox in all the major distributions, RHEL, SLES, Ubuntu and more)
 ```lsmod | grep -i ib_
 ```
-
 - Verify that the Mellanox Software Tools (MST) / MLNX_OFED drivers were installed correctly
 Need to make sure the version is correct. Use the driver in /home/infiniband/ on dgx or the driver in /tmp/ on deepstorage.  
 Run the ``install.sh`` to install MST, and this will remove any existing versions.  
@@ -20,36 +18,30 @@ Run the ``install.sh`` to install MST, and this will remove any existing version
 ```
 modinfo mlx5_core | grep -i version | head -1
 ```
-
 - Load MST software
 ```
 sudo mst start
 ```
-
 - Restart the IB service (may need to restart here)
 ```
 sudo service openibd restart
 ```
-
 - Make sure the link type is Ethernet
 In this guide, page 50 describes how to change link type [here](https://images.nvidia.com/content/technologies/deep-learning/pdf/DGX-1-UserGuide.pdf)
 ```
 ibv_devinfo | grep -e "hca_id\|link_layer"
 ```
-
 - Add following to ``/etc/modules`` for both server and client. Need to reboot
 ```
 mlx4_ib
 ib_umad
 ib_ipoib
 ```
-
 - Open subnet manager
 ```
 /etc/init.d/opensmd start
 /etc/init.d/opensmd status
 ```
-
 The infiniband ports should be active and linkup.
 
 ## Config network interface <a name="config_network"></a>
@@ -58,7 +50,6 @@ The infiniband ports should be active and linkup.
 # Show all network interfaces, even if they are down. 
 ifconfig -a
 ```
-
 - Figure out which interface (from the ifconfig command) corresponds to which port (from the ibstat command), since we
 need to figure out which ports are active and linkup
 ```
