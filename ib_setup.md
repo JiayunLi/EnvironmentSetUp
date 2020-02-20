@@ -206,3 +206,15 @@ Need to edit the ``/etc/fstab`` to add mount folder options.
 
 - Test the file transfer speed
 ```dd of=<folder on dgx> if=<file from mounted folder on dgx> bs=1000M count=1024 oflag=direct```
+
+- Test the IB link only (no disk operation)
+1) Start the ib server on one server (deepstorage) ``ib_send_bw``
+2) Test speed on another server (dgx) ``ib_send_bw -d mlx5_0 -i 1 -F --report_gbits 192.168.1.6``
+
+## References and useful tutorials
+- [Test IB speed](https://community.mellanox.com/s/article/ib-send-bw)
+- [Config IB link type](https://docs.nvidia.com/dgx/dgx1-user-guide/configuring-managing-dgx1.html#infiniband-port-changing)
+- [Config IPoIB](https://furneaux.ca/wiki/IPoIB)
+- [Config static ip](https://websiteforstudents.com/configure-static-ip-addresses-on-ubuntu-18-04-beta/)
+- [Config NFS on DGX](https://docs.nvidia.com/dgx/dgx1-user-guide/preparing-for-using-containers.html#setting-up-nfs)
+- [Config RDMA over NFS](https://community.mellanox.com/s/article/howto-configure-nfs-over-rdma--roce-x)
